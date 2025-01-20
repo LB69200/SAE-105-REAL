@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse de Sécurité Réseau</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Analyse de Sécurité Réseau en Temps Réel</h1>
+            <div class="upload-section">
+                <input type="file" id="packetFile" accept=".pcap,.txt" class="file-input">
+                <button onclick="startAnalysis()" class="primary-button">Démarrer l'analyse</button>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <div class="summary-section">
+                <h2>Résumé de l'Analyse</h2>
+                <div id="summaryStats" class="stats-grid"></div>
+            </div>
+
+            <div class="visualizations">
+                <div class="chart-container">
+                    <h3>Distribution des Flags TCP</h3>
+                    <div id="tcpFlagsChart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3>Distribution des Tailles de Paquets</h3>
+                    <div id="packetSizesChart"></div>
+                </div>
+            </div>
+
+            <div class="attackers-section">
+                <h2>Profils des Attaquants</h2>
+                <div id="attackersList" class="attackers-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
