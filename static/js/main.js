@@ -25,25 +25,20 @@ function extractWinInfo(line) {
 }
 
 function extractSourceIP(line) {
-    // Afficher la ligne pour le debug
     console.log("Ligne à analyser pour IP source:", line);
     
-    // Chercher l'adresse IP après "IP" et avant ">"
     const ipMatch = line.match(/IP (?:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})|([^ >]+))(?:\.([0-9]+))? >/);
     
     if (ipMatch) {
         if (ipMatch[1]) {
-            // Si on a trouvé une IPv4
             console.log("IPv4 source trouvée:", ipMatch[1]);
             return ipMatch[1];
         } else if (ipMatch[2]) {
-            // Si on a un hostname
             const ipInHostname = ipMatch[2].match(/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/);
             if (ipInHostname) {
                 console.log("IPv4 trouvée dans le hostname:", ipInHostname[1]);
                 return ipInHostname[1];
             }
-            // Si c'est un hostname du type "190-0-175-100.gba.solunet.com.ar"
             const formattedHostname = ipMatch[2].match(/(\d+-\d+-\d+-\d+)/);
             if (formattedHostname) {
                 const ip = formattedHostname[1].replace(/-/g, '.');
@@ -51,8 +46,7 @@ function extractSourceIP(line) {
                 return ip;
             }
             
-            // Pour les hostnames comme "BP-Linux8"
-            const hostname = ipMatch[2].split('.')[0];  // Prend la première partie du hostname
+            const hostname = ipMatch[2].split('.')[0];
             console.log("Hostname trouvé:", hostname);
             return hostname;
         }
@@ -63,10 +57,8 @@ function extractSourceIP(line) {
 }
 
 function extractDestIP(line) {
-    // Afficher la ligne pour le debug
     console.log("Ligne à analyser pour IP dest:", line);
     
-    // Chercher le motif IP après ">"
     const parts = line.split(' > ');
     if (parts.length < 2) {
         console.log("Pas de séparateur '>' trouvé");
@@ -76,14 +68,12 @@ function extractDestIP(line) {
     const destPart = parts[1];
     console.log("Partie destination:", destPart);
     
-    // Chercher une IPv4
     const ipv4Match = destPart.match(/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/);
     if (ipv4Match) {
         console.log("IPv4 destination trouvée:", ipv4Match[1]);
         return ipv4Match[1];
     }
     
-    // Si c'est un hostname, essayer de le récupérer
     const hostnameMatch = destPart.match(/^([^:.\s]+)/);
     if (hostnameMatch) {
         console.log("Hostname destination trouvé:", hostnameMatch[1]);
@@ -115,7 +105,6 @@ function extractPort(line) {
     return ports && ports.length > 1 ? parseInt(ports[1].substring(1)) : null;
 }
 
-// Fonction de parsing principale
 function parsePackets(text) {
     const packets = [];
     let currentPacket = null;
@@ -130,9 +119,7 @@ function parsePackets(text) {
         const line = lines[i].trim();
         if (!line) continue;
 
-        // Nouvelle entrée de paquet (commence par un timestamp)
         if (line.match(/^\d{2}:\d{2}:\d{2}\.\d{6}/)) {
-            // Sauvegarder le paquet précédent s'il existe
             if (currentPacket) {
                 if (hexDump.length > 0) {
                     currentPacket.hex_dump = hexDump.join('\n');
@@ -151,7 +138,7 @@ function parsePackets(text) {
             
             currentPacket = {
                 timestamp: timestamp,
-                source_ip: sourceIP || "unknown",  // utiliser "unknown" au lieu de null
+                source_ip: sourceIP || "unknown",
                 destination_ip: destIP,
                 flags: extractFlags(line) || '',
                 length: extractLength(line) || 0,
@@ -159,7 +146,7 @@ function parsePackets(text) {
                 protocol: extractProtocol(line),
                 seq_info: extractSeqInfo(line),
                 win_info: extractWinInfo(line),
-                raw_line: line  // garder la ligne brute pour debug
+                raw_line: line
             };
 
             console.log(`Paquet #${packets.length + 1}:`, {
@@ -171,13 +158,10 @@ function parsePackets(text) {
             });
 
         } else if (line.match(/^\s*0x[0-9a-f]+:/i)) {
-            // Ligne hexadécimale
             hexDump.push(line);
         } else if (currentPacket) {
-            // Lignes qui font partie du paquet courant
             continuationLines.push(line);
             
-            // Essayer d'extraire des informations supplémentaires
             const additionalFlags = extractFlags(line);
             if (additionalFlags) {
                 currentPacket.flags = currentPacket.flags ? 
@@ -199,7 +183,6 @@ function parsePackets(text) {
         }
     }
     
-    // Ne pas oublier le dernier paquet
     if (currentPacket) {
         if (hexDump.length > 0) {
             currentPacket.hex_dump = hexDump.join('\n');
@@ -220,7 +203,6 @@ function parsePackets(text) {
     return packets;
 }
 
-// Fonction principale d'analyse
 async function startAnalysis() {
     const fileInput = document.getElementById('packetFile');
     const file = fileInput.files[0];
@@ -239,7 +221,6 @@ async function startAnalysis() {
         
         const packets = parsePackets(text);
         
-        // Stats avant envoi
         console.log("Statistiques avant envoi au serveur:");
         console.log("- Total paquets:", packets.length);
         console.log("- Paquets avec flags SYN:", packets.filter(p => p.flags.includes('S')).length);
@@ -269,7 +250,6 @@ async function startAnalysis() {
             currentData = data;
             updateDashboard(data);
             
-            // Log des statistiques d'attaque
             if (data.attackers && data.attackers.length > 0) {
                 console.log("Attaques détectées:");
                 data.attackers.forEach(attacker => {
@@ -287,12 +267,12 @@ async function startAnalysis() {
     }
 }
 
-// Fonctions de mise à jour de l'interface
 function updateDashboard(data) {
     updateSummaryStats(data.summary);
     updateTCPFlagsChart(data.summary.tcp_flags);
     updatePacketSizesChart(data.packet_sizes);
     updateAttackersList(data.attackers);
+    updateAnomaliesList(data);
 }
 
 function updateSummaryStats(summary) {
@@ -417,6 +397,96 @@ function updateAttackersList(attackers) {
             </ul>
         </div>
     `).join('');
+}
+
+function updateAnomaliesList(data) {
+    const anomaliesList = document.getElementById('anomaliesList');
+    
+    // Créer le tableau des anomalies
+    let anomalies = [];
+    
+    // Ajouter les Traffic Bursts
+    data.attackers?.forEach(attacker => {
+        if (attacker.avg_packet_size > 1000) {
+            const rate = (attacker.avg_packet_size * attacker.packet_count) / 10; // KB/s approximatif
+            anomalies.push({
+                timestamp: new Date().toISOString(),
+                source_ip: attacker.ip_address + (attacker.port ? '.' + attacker.port : ''),
+                type: 'Traffic Burst',
+                details: `Pic de trafic: ${(rate / 1024).toFixed(2)} KB/s`,
+                risk_level: rate > 100000 ? 'HIGH' : 'MEDIUM'
+            });
+        }
+    });
+    
+    // Ajouter les SYN Floods
+    data.attackers?.forEach(attacker => {
+        if (attacker.syn_count > 5) {
+            anomalies.push({
+                timestamp: new Date().toISOString(),
+                source_ip: attacker.ip_address,
+                type: 'SYN Flood',
+                details: `Suspicion de SYN Flood (${attacker.syn_count} paquets SYN)`,
+                risk_level: attacker.syn_count > 10 ? 'HIGH' : 'MEDIUM'
+            });
+        }
+    });
+    
+    // Trier par timestamp décroissant
+    anomalies.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Créer le tableau HTML
+    const table = `
+        <table class="anomalies-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Source IP</th>
+                    <th>Type</th>
+                    <th>Details</th>
+                    <th>Risk Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${anomalies.map(anomaly => `
+                    <tr class="risk-${anomaly.risk_level.toLowerCase()}">
+                        <td>${new Date(anomaly.timestamp).toLocaleString()}</td>
+                        <td>${anomaly.source_ip}</td>
+                        <td>${anomaly.type}</td>
+                        <td>${anomaly.details}</td>
+                        <td>${anomaly.risk_level}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    
+    anomaliesList.innerHTML = table;
+}
+
+// Ajouter les gestionnaires de filtres
+document.getElementById('anomalySearch')?.addEventListener('input', filterAnomalies);
+document.getElementById('typeFilter')?.addEventListener('change', filterAnomalies);
+document.getElementById('riskFilter')?.addEventListener('change', filterAnomalies);
+
+function filterAnomalies() {
+    const searchText = document.getElementById('anomalySearch').value.toLowerCase();
+    const typeFilter = document.getElementById('typeFilter').value;
+    const riskFilter = document.getElementById('riskFilter').value;
+    
+    const rows = document.querySelectorAll('.anomalies-table tbody tr');
+    
+    rows.forEach(row => {
+        const type = row.children[2].textContent;
+        const risk = row.children[4].textContent;
+        const text = row.textContent.toLowerCase();
+        
+        const matchesSearch = text.includes(searchText);
+        const matchesType = typeFilter === 'all' || type.toLowerCase().includes(typeFilter);
+        const matchesRisk = riskFilter === 'all' || risk === riskFilter;
+        
+        row.style.display = matchesSearch && matchesType && matchesRisk ? '' : 'none';
+    });
 }
 
 // Mise à jour automatique

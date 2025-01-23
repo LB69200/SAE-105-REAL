@@ -7,6 +7,9 @@
     --text-color: #333333;
     --border-radius: 8px;
     --shadow: 0 2px 4px rgba(0,0,0,0.1);
+    --risk-high: #fee2e2;
+    --risk-medium: #fef3c7;
+    --risk-low: #f3f4f6;
 }
 
 * {
@@ -70,7 +73,7 @@ header {
     gap: 20px;
 }
 
-.summary-section, .visualizations, .attackers-section {
+.summary-section, .visualizations, .attackers-section, .anomalies-section {
     background-color: var(--card-background);
     padding: 20px;
     border-radius: var(--border-radius);
@@ -141,6 +144,67 @@ header {
     justify-content: space-between;
 }
 
+/* Nouveaux styles pour la section des anomalies */
+.anomalies-section {
+    margin-top: 20px;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+}
+
+.filter-select {
+    padding: 10px;
+    border: 2px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+    background: white;
+    color: var(--text-color);
+}
+
+.anomalies-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.anomalies-table th,
+.anomalies-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.anomalies-table th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.anomalies-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.risk-high {
+    background-color: var(--risk-high);
+}
+
+.risk-medium {
+    background-color: var(--risk-medium);
+}
+
+.risk-low {
+    background-color: var(--risk-low);
+}
+
 @media (max-width: 768px) {
     .visualizations {
         grid-template-columns: 1fr;
@@ -152,5 +216,14 @@ header {
     
     .attackers-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .filter-bar {
+        flex-direction: column;
+    }
+    
+    .search-input,
+    .filter-select {
+        width: 100%;
     }
 }

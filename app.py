@@ -25,6 +25,10 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_data():
+    # Réinitialiser l'analyseur pour chaque nouveau fichier
+    global packet_analyzer
+    packet_analyzer = PacketAnalyzer()
+
     data = request.get_json()
     if 'packets' in data:
         for packet_data in data['packets']:
@@ -49,7 +53,7 @@ def upload_data():
             'status': 'success',
             'summary': summary,
             'attackers': attackers,
-            'packet_sizes': packet_sizes  # Add this line
+            'packet_sizes': packet_sizes
         })
     return jsonify({'status': 'error', 'message': 'No packet data provided'})
 
@@ -60,7 +64,7 @@ def get_analysis():
     return jsonify({
         'summary': summary,
         'attackers': attackers,
-        'packet_sizes': packet_analyzer.packet_sizes  # Add this line
+        'packet_sizes': packet_analyzer.packet_sizes
     })
 
 if __name__ == '__main__':

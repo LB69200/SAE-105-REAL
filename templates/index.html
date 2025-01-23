@@ -38,6 +38,25 @@
                 <h2>Profils des Attaquants</h2>
                 <div id="attackersList" class="attackers-grid"></div>
             </div>
+
+            <div class="anomalies-section">
+                <h2>Anomalies Détectées</h2>
+                <div class="filter-bar">
+                    <input type="text" id="anomalySearch" placeholder="Rechercher des anomalies..." class="search-input">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="all">Tous les Types</option>
+                        <option value="traffic">Traffic Burst</option>
+                        <option value="syn">SYN Flood</option>
+                    </select>
+                    <select id="riskFilter" class="filter-select">
+                        <option value="all">Tous les Risques</option>
+                        <option value="high">HIGH</option>
+                        <option value="medium">MEDIUM</option>
+                        <option value="low">LOW</option>
+                    </select>
+                </div>
+                <div id="anomaliesList" class="anomalies-table"></div>
+            </div>
         </div>
     </div>
 
